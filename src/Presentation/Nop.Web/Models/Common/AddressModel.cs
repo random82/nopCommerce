@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Nop.Core.Infrastructure;
+using Nop.Services.Localization;
 using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.ModelBinding;
 
@@ -33,7 +35,7 @@ namespace Nop.Web.Models.Common
         public int? CountryId { get; set; }
         [NopResourceDisplayName("Address.Fields.Country")]
         public string CountryName { get; set; }
-                
+
         public int? DefaultCountryId { get; set; }
 
         public bool StateProvinceEnabled { get; set; }
@@ -83,5 +85,31 @@ namespace Nop.Web.Models.Common
 
         public string FormattedCustomAddressAttributes { get; set; }
         public IList<AddressAttributeModel> CustomAddressAttributes { get; set; }
+
+        #region Methods
+
+        public virtual async Task<string> AddressToLine()
+        {
+            //do not inject ILocalizationService via constructor because it'll cause circular references
+            var format = await EngineContext.Current.Resolve<ILocalizationService>().GetResourceAsync("Address.LineFormat");
+            var adressfields = new string[6];
+
+            if (CountryEnabled && !string.IsNullOrWhiteSpace(CountryName))
+                adressfields[0] = CountryName;
+            if (StateProvinceEnabled && !string.IsNullOrEmpty(StateProvinceName))
+                adressfields[1] = StateProvinceName;
+            if (CityEnabled && !string.IsNullOrEmpty(City))
+                adressfields[2] = City;
+            if (CountyEnabled && !string.IsNullOrEmpty(County))
+                adressfields[3] = County;
+            if (StreetAddressEnabled && !string.IsNullOrEmpty(Address1))
+                adressfields[4] = Address1;
+            if (ZipPostalCodeEnabled && !string.IsNullOrEmpty(ZipPostalCode))
+                adressfields[5] = ZipPostalCode;
+
+            return string.Join(", ", string.Format(format, adressfields).Split(';', StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        #endregion
     }
 }
