@@ -10,6 +10,7 @@ using Nop.Core.Domain.Gdpr;
 using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Tax;
+using Nop.Core.Infrastructure;
 using Nop.Services.Affiliates;
 using Nop.Services.Attributes;
 using Nop.Services.Authentication.External;
@@ -325,31 +326,31 @@ namespace Nop.Web.Areas.Admin.Factories
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
+            var format = await EngineContext.Current.Resolve<ILocalizationService>().GetResourceAsync("Address.LineFormat");
+            var seporate = "<br />";
+            var adressfields = new string[7];
             var addressHtmlSb = new StringBuilder("<div>");
-
+            
             if (_addressSettings.CompanyEnabled && !string.IsNullOrEmpty(model.Company))
                 addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Company));
 
-            if (_addressSettings.StreetAddressEnabled && !string.IsNullOrEmpty(model.Address1))
-                addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Address1));
-
-            if (_addressSettings.StreetAddress2Enabled && !string.IsNullOrEmpty(model.Address2))
-                addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Address2));
-
-            if (_addressSettings.CityEnabled && !string.IsNullOrEmpty(model.City))
-                addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.City));
-
-            if (_addressSettings.CountyEnabled && !string.IsNullOrEmpty(model.County))
-                addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.County));
-
+            if (_addressSettings.CountryEnabled && !string.IsNullOrWhiteSpace(model.CountryName))
+                adressfields[0] = WebUtility.HtmlEncode(model.CountryName) + seporate;
             if (_addressSettings.StateProvinceEnabled && !string.IsNullOrEmpty(model.StateProvinceName))
-                addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.StateProvinceName));
+                adressfields[1] = WebUtility.HtmlEncode(model.StateProvinceName) + seporate;
+            if (_addressSettings.CityEnabled && !string.IsNullOrEmpty(model.City))
+                adressfields[2] = WebUtility.HtmlEncode(model.City) + seporate;
+            if (_addressSettings.CountyEnabled && !string.IsNullOrEmpty(model.County))
+                adressfields[3] = WebUtility.HtmlEncode(model.County) + seporate;            
+            if (_addressSettings.StreetAddressEnabled && !string.IsNullOrEmpty(model.Address1))
+                adressfields[4] = WebUtility.HtmlEncode(model.Address1) + seporate;
+            if (_addressSettings.StreetAddress2Enabled && !string.IsNullOrEmpty(model.Address2))
+                adressfields[5] = WebUtility.HtmlEncode(model.Address2) + seporate;
 
             if (_addressSettings.ZipPostalCodeEnabled && !string.IsNullOrEmpty(model.ZipPostalCode))
-                addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.ZipPostalCode));
-
-            if (_addressSettings.CountryEnabled && !string.IsNullOrEmpty(model.CountryName))
-                addressHtmlSb.AppendFormat("{0}", WebUtility.HtmlEncode(model.CountryName));
+                adressfields[6] = WebUtility.HtmlEncode(model.ZipPostalCode) + seporate;
+                        
+            addressHtmlSb.Append(string.Format(format, adressfields));            
 
             var customAttributesFormatted = await _addressAttributeFormatter.FormatAttributesAsync(address?.CustomAttributes);
             if (!string.IsNullOrEmpty(customAttributesFormatted))

@@ -907,6 +907,42 @@ namespace Nop.Services.Messages
             return new Uri(new Uri(store.Url), url).AbsoluteUri;
         }
 
+        /// <summary>
+        /// Address struct to line
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns>Address in line</returns>
+        public virtual async Task<string> AddressToLine(Address address)
+        {
+            //do not inject ILocalizationService via constructor because it'll cause circular references            
+            var format = await EngineContext.Current.Resolve<ILocalizationService>().GetResourceAsync("Address.LineFormat");
+            var seporate = ", ";
+            var adressfields = new string[7];
+
+            var country = await _countryService.GetCountryByAddressAsync(address);
+            var countryName = country != null ? await _localizationService.GetLocalizedAsync(country, x => x.Name) : string.Empty;
+
+            var stateProvince = await _stateProvinceService.GetStateProvinceByAddressAsync(address);
+            var stateProvinceName = stateProvince != null ? await _localizationService.GetLocalizedAsync(stateProvince, x => x.Name) : string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(countryName))
+                adressfields[0] = countryName + seporate;
+            if (!string.IsNullOrEmpty(stateProvinceName))
+                adressfields[1] = stateProvinceName + seporate;
+            if (!string.IsNullOrEmpty(address.City))
+                adressfields[2] = address.City + seporate;
+            if (!string.IsNullOrEmpty(address.County))
+                adressfields[3] = address.County + seporate;
+            if (!string.IsNullOrEmpty(address.Address1))
+                adressfields[4] = address.Address1 + seporate;
+            if (!string.IsNullOrEmpty(address.Address2))
+                adressfields[5] = address.Address2 + seporate;
+            if (!string.IsNullOrEmpty(address.ZipPostalCode))
+                adressfields[6] = address.ZipPostalCode + seporate;
+
+            return string.Format(format, adressfields).TrimEnd(new char[] { ',', ' ' });
+        }
+
         #endregion
 
         #region Methods
@@ -975,7 +1011,7 @@ namespace Nop.Services.Messages
             tokens.Add(new Token("Order.BillingZipPostalCode", billingAddress.ZipPostalCode));
             tokens.Add(new Token("Order.BillingCountry", await _countryService.GetCountryByAddressAsync(billingAddress) is Country billingCountry ? await _localizationService.GetLocalizedAsync(billingCountry, x => x.Name) : string.Empty));
             tokens.Add(new Token("Order.BillingCustomAttributes", await _addressAttributeFormatter.FormatAttributesAsync(billingAddress.CustomAttributes), true));
-
+            tokens.Add(new Token("Order.BillingAddressLine", AddressToLine(billingAddress)));
             tokens.Add(new Token("Order.Shippable", !string.IsNullOrEmpty(order.ShippingMethod)));
             tokens.Add(new Token("Order.ShippingMethod", order.ShippingMethod));
             tokens.Add(new Token("Order.PickupInStore", order.PickupInStore));
@@ -993,6 +1029,7 @@ namespace Nop.Services.Messages
             tokens.Add(new Token("Order.ShippingZipPostalCode", (await orderAddress(order))?.ZipPostalCode ?? string.Empty));
             tokens.Add(new Token("Order.ShippingCountry", await _countryService.GetCountryByAddressAsync(await orderAddress(order)) is Country orderCountry ? await _localizationService.GetLocalizedAsync(orderCountry, x => x.Name) : string.Empty));
             tokens.Add(new Token("Order.ShippingCustomAttributes", await _addressAttributeFormatter.FormatAttributesAsync((await orderAddress(order))?.CustomAttributes ?? string.Empty), true));
+            tokens.Add(new Token("Order.ShippingAddressLine", AddressToLine(await orderAddress(order))));
             tokens.Add(new Token("Order.IsCompletelyShipped", !order.PickupInStore && order.ShippingStatus == ShippingStatus.Shipped));
             tokens.Add(new Token("Order.IsCompletelyReadyForPickup", order.PickupInStore && !await _orderService.HasItemsToAddToShipmentAsync(order) && !await _orderService.HasItemsToReadyForPickupAsync(order)));
             tokens.Add(new Token("Order.IsCompletelyDelivered", order.ShippingStatus == ShippingStatus.Delivered));

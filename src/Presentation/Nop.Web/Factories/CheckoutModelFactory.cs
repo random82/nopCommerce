@@ -183,6 +183,24 @@ namespace Nop.Web.Factories
                             OpeningHours = point.OpeningHours
                         };
 
+                        var pickupPointAddress = new AddressModel{ 
+                            CountryEnabled = true,
+                            CountryName = pickupPointModel.CountryName,
+                            CityEnabled = true,
+                            City = pickupPointModel.City,
+                            StateProvinceEnabled = true,
+                            StateProvinceName = pickupPointModel.StateName,
+                            StreetAddressEnabled = true,
+                            Address1 = pickupPointModel.Address,
+                            CountyEnabled= true,
+                            County = pickupPointModel.County,
+                            ZipPostalCodeEnabled=true,
+                            ZipPostalCode = pickupPointModel.ZipPostalCode,
+                        };
+
+                        await _addressModelFactory.AddressToLine(pickupPointAddress);
+                        pickupPointModel.AddressLine = pickupPointAddress.AddressLine;
+
                         var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
                         var amount = await _orderTotalCalculationService.IsFreeShippingAsync(cart) ? 0 : point.PickupFee;
                         var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
@@ -285,6 +303,7 @@ namespace Nop.Web.Factories
                 {
                     model.InvalidExistingAddresses.Add(addressModel);
                 }
+                await _addressModelFactory.AddressToLine(addressModel);
             }
 
             //new address
@@ -350,6 +369,7 @@ namespace Nop.Web.Factories
                 {
                     model.InvalidExistingAddresses.Add(addressModel);
                 }
+                await _addressModelFactory.AddressToLine(addressModel);
             }
 
             //new address

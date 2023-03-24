@@ -113,7 +113,7 @@ namespace Nop.Web.Framework.Migrations.UpgradeTo470
                 ["Admin.Configuration.Settings.CustomerUser.DefaultCountry"] = "Default Country",
                 ["Admin.Configuration.Settings.CustomerUser.DefaultCountry.Hint"] = "Select the default country for customer form fields. This can speed up the registration process.",
                 //6645
-                ["Address.LineFormat"] = "{2};{0};{1};{3};{4};{5}",
+                ["Address.LineFormat"] = "{0}{1}{2}{3}{4}{5}{6}",
             }, languageId);
 
             #endregion

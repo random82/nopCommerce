@@ -1179,6 +1179,9 @@
   <LocaleResource Name="Address">
     <Value>Address</Value>
   </LocaleResource>
+  <LocaleResource Name="Address.LineFormat">
+    <Value>{0}{1}{2}{3}{4}{5}{6}</Value>
+  </LocaleResource>
   <LocaleResource Name="Address.Fields.Address1">
     <Value>Address 1</Value>
   </LocaleResource>

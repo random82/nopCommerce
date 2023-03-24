@@ -674,6 +674,8 @@ namespace Nop.Web.Factories
                         address: billingAddress,
                         excludeProperties: false,
                         addressSettings: _addressSettings);
+
+                await _addressModelFactory.AddressLiByOrder(model.BillingAddress, false);
             }
 
             //shipping info
@@ -692,6 +694,8 @@ namespace Nop.Web.Factories
                             address: address,
                             excludeProperties: false,
                             addressSettings: _addressSettings);
+
+                        await _addressModelFactory.AddressLiByOrder(model.ShippingAddress, false);
                     }
                 }
                 else
@@ -708,6 +712,8 @@ namespace Nop.Web.Factories
                         StateProvinceName = state?.Name ?? string.Empty,
                         ZipPostalCode = pickupPoint.ZipPostalCode
                     };
+
+                    await _addressModelFactory.AddressLiByOrder(model.PickupAddress, true);
                 }
 
                 //selected shipping method

@@ -1,4 +1,7 @@
-using System.Globalization;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Http;
+using Nop.Core.Domain.Common;
+using Nop.Core.Infrastructure;
 using Nop.Services.Localization;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -12,10 +15,11 @@ namespace Nop.Services.Common.Pdf
     /// </summary>
     public class InvoiceDocument : PdfDocument<InvoiceSource>
     {
+
         #region Ctor
 
         public InvoiceDocument(InvoiceSource invoiceSource, ILocalizationService localizationService) : base(invoiceSource, localizationService)
-        {
+        {            
         }
 
         #endregion
@@ -201,12 +205,14 @@ namespace Nop.Services.Common.Pdf
             column.Item().Text(t => ComposeField(t, address, x => x.Company, delimiter: ": "));
             column.Item().Text(t => ComposeField(t, address, x => x.Name, delimiter: ": "));
             column.Item().Text(t => ComposeField(t, address, x => x.Phone, delimiter: ": "));
-            column.Item().Text(t => ComposeField(t, address, x => x.Address, delimiter: ": "));
-            column.Item().Text(t => ComposeField(t, address, x => x.Address2, delimiter: ": "));
-            column.Item().Text(address.AddressLine);
-            column.Item().Text(t => ComposeField(t, address, x => x.VATNumber));
-            column.Item().Text(address.Country);
+                        
+            foreach (var item in DocumentUtils.FormatAddress(address))
+            {
+                column.Item().Text(item);
+            }
 
+            column.Item().Text(t => ComposeField(t, address, x => x.VATNumber));
+            
             foreach (var attribute in address.AddressAttributes)
                 column.Item().Text(attribute);
 

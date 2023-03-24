@@ -1,3 +1,4 @@
+﻿using Nop.Core.Domain.Common;
 using Nop.Services.Localization;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -121,12 +122,14 @@ namespace Nop.Services.Common.Pdf
                 column.Item().Text(t => ComposeField(t, Source.Address, x => x.Company, delimiter: ": "));
                 column.Item().Text(t => ComposeField(t, Source.Address, x => x.Name, delimiter: ": "));
                 column.Item().Text(t => ComposeField(t, Source.Address, x => x.Phone, delimiter: ": "));
-                column.Item().Text(t => ComposeField(t, Source.Address, x => x.Address, delimiter: ": "));
-                column.Item().Text(t => ComposeField(t, Source.Address, x => x.Address2, delimiter: ": "));
-                column.Item().Text(Source.Address.AddressLine);
-                column.Item().Text(t => ComposeField(t, Source.Address, x => x.VATNumber, delimiter: ": "));
-                column.Item().Text(Source.Address.Country);
 
+                foreach (var item in DocumentUtils.FormatAddress(Source.Address))
+                {
+                    column.Item().Text(item);
+                }
+
+                column.Item().Text(t => ComposeField(t, Source.Address, x => x.VATNumber, delimiter: ": "));
+                
                 foreach (var attribute in Source.Address.AddressAttributes)
                     column.Item().Text(attribute);
 

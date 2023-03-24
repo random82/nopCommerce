@@ -774,6 +774,7 @@ namespace Nop.Web.Factories
                     excludeProperties: false,
                     addressSettings: _addressSettings,
                     loadCountries: async () => await _countryService.GetAllCountriesAsync((await _workContext.GetWorkingLanguageAsync()).Id));
+                await _addressModelFactory.AddressLiByOrder(addressModel, false);
                 model.Addresses.Add(addressModel);
             }
             return model;

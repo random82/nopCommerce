@@ -286,6 +286,7 @@ namespace Nop.Web.Factories
                         address: shippingAddress,
                         excludeProperties: false,
                         addressSettings: _addressSettings);
+                    await _addressModelFactory.AddressLiByOrder(model.ShippingAddress, false);
                 }
                 else if (order.PickupAddressId.HasValue && await _addressService.GetAddressByIdAsync(order.PickupAddressId.Value) is Address pickupAddress)
                 {
@@ -302,6 +303,7 @@ namespace Nop.Web.Factories
                             : string.Empty,
                         ZipPostalCode = pickupAddress.ZipPostalCode
                     };
+                    await _addressModelFactory.AddressLiByOrder(model.PickupAddress, true);
                 }
 
                 model.ShippingMethod = order.ShippingMethod;
@@ -332,6 +334,8 @@ namespace Nop.Web.Factories
                 address: billingAddress,
                 excludeProperties: false,
                 addressSettings: _addressSettings);
+
+            await _addressModelFactory.AddressLiByOrder(model.BillingAddress, false);
 
             //VAT number
             model.VatNumber = order.VatNumber;

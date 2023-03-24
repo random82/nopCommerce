@@ -41,7 +41,7 @@
                                 var addressLine = "";
                                 addressLine += address.FirstName;
                                 addressLine += " " + address.LastName;
-                                addressLine += ", " + await address.AddressToLine();
+                                addressLine += ", " + address.AddressLine;
                                 //how should we render "FormattedCustomAddressAttributes" here?
                                 <option value="@(address.Id)">@(addressLine)</option>
                             }

@@ -29,5 +29,20 @@ namespace Nop.Web.Factories
             bool prePopulateWithCustomerFields = false,
             Customer customer = null,
             string overrideAttributesXml = "");
+
+        /// <summary>
+        /// AddressModel struct to line
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        Task AddressToLine(AddressModel model);
+
+        /// <summary>
+        /// AddressModel struct to line in html format li elements
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="pickupAddress"></param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        Task AddressLiByOrder(AddressModel model, bool pickupAddress);
     }
 }

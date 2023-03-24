@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Net;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Directory;
+using Nop.Core.Infrastructure;
 using Nop.Services.Attributes;
 using Nop.Services.Common;
 using Nop.Services.Directory;
@@ -305,6 +307,67 @@ namespace Nop.Web.Factories
                 model.FormattedCustomAddressAttributes = await _addressAttributeFormatter.FormatAttributesAsync(address.CustomAttributes);
             }
         }
+
+        /// <summary>
+        /// Address to line
+        /// </summary>
+        /// <param name="model">Address model</param>
+        /// <returns>Address as line</returns>
+        public virtual async Task AddressToLine(AddressModel model)
+        {
+            //do not inject ILocalizationService via constructor because it'll cause circular references            
+            var format = await EngineContext.Current.Resolve<ILocalizationService>().GetResourceAsync("Address.LineFormat");
+            var seporate = ", ";
+            var adressfields = new string[7];
+
+            if (model.CountryEnabled && !string.IsNullOrWhiteSpace(model.CountryName))
+                adressfields[0] = model.CountryName + seporate;
+            if (model.StateProvinceEnabled && !string.IsNullOrEmpty(model.StateProvinceName))
+                adressfields[1] = model.StateProvinceName + seporate;
+            if (model.CityEnabled && !string.IsNullOrEmpty(model.City))
+                adressfields[2] = model.City + seporate;
+            if (model.CountyEnabled && !string.IsNullOrEmpty(model.County))
+                adressfields[3] = model.County + seporate;
+            if (model.StreetAddressEnabled && !string.IsNullOrEmpty(model.Address1))
+                adressfields[4] = model.Address1 + seporate;
+            if (model.StreetAddress2Enabled && !string.IsNullOrEmpty(model.Address2))
+                adressfields[5] = model.Address2 + seporate;
+            if (model.ZipPostalCodeEnabled && !string.IsNullOrEmpty(model.ZipPostalCode))
+                adressfields[6] = model.ZipPostalCode + seporate;
+
+            model.AddressLine = string.Format(format, adressfields).TrimEnd(new char[] { ',', ' ' });
+        }
+
+        public virtual async Task AddressLiByOrder(AddressModel model, bool pickupAddress)
+        {
+            //do not inject ILocalizationService via constructor because it'll cause circular references            
+            var format = await EngineContext.Current.Resolve<ILocalizationService>().GetResourceAsync("Address.LineFormat");
+            var adressfields = new string[7];
+
+            if ((model.CountryEnabled || pickupAddress) && !string.IsNullOrWhiteSpace(model.CountryName))
+                adressfields[0] = $"<li class=\"country\">{WebUtility.HtmlEncode(model.CountryName)}</li>";
+            
+            if ((model.StateProvinceEnabled || pickupAddress) && !string.IsNullOrEmpty(model.StateProvinceName))
+                adressfields[1] = $"<li class=\"state\">{WebUtility.HtmlEncode(model.StateProvinceName)}</li>";
+
+            if ((model.CityEnabled || pickupAddress) && !string.IsNullOrEmpty(model.City))
+                adressfields[2] = $"<li class=\"city\">{WebUtility.HtmlEncode(model.City)}</li>";
+
+            if ((model.CountyEnabled || pickupAddress) && !string.IsNullOrEmpty(model.County))
+                adressfields[3] = $"<li class=\"county\">{WebUtility.HtmlEncode(model.County)}</li>";
+
+            if ((model.StreetAddressEnabled || pickupAddress) && !string.IsNullOrEmpty(model.Address1))
+                adressfields[4] = $"<li class=\"address1\">{WebUtility.HtmlEncode(model.Address1)}</li>";
+
+            if ((model.StreetAddress2Enabled || pickupAddress) && !string.IsNullOrEmpty(model.Address2))
+                adressfields[5] = $"<li class=\"address2\">{WebUtility.HtmlEncode(model.Address2)}</li>";
+
+            if ((model.ZipPostalCodeEnabled || pickupAddress) && !string.IsNullOrEmpty(model.ZipPostalCode))
+                adressfields[6] = $"<li class=\"zip\">{WebUtility.HtmlEncode(model.ZipPostalCode)}</li>";
+
+            model.AddressLiHtml = string.Format(format, adressfields);
+        }
+
 
         #endregion
     }

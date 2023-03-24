@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using Microsoft.AspNetCore.Http;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
@@ -172,16 +173,18 @@ namespace Nop.Services.Common
             if (_addressSettings.StreetAddress2Enabled && !string.IsNullOrEmpty(billingAddress.Address2))
                 addressResult.Address2 = billingAddress.Address2;
 
-            if (_addressSettings.CityEnabled || _addressSettings.StateProvinceEnabled ||
-                _addressSettings.CountyEnabled || _addressSettings.ZipPostalCodeEnabled)
-            {
-                addressResult.AddressLine =
-                    $"{billingAddress.City}, " +
-                    $"{(!string.IsNullOrEmpty(billingAddress.County) ? $"{billingAddress.County}, " : string.Empty)}" +
-                    $"{(await _stateProvinceService.GetStateProvinceByAddressAsync(billingAddress) is StateProvince stateProvince ? await _localizationService.GetLocalizedAsync(stateProvince, x => x.Name, lang.Id) : string.Empty)} " +
-                    $"{billingAddress.ZipPostalCode}";
-            }
+            if (_addressSettings.CityEnabled && !string.IsNullOrEmpty(billingAddress.City))
+                addressResult.City = billingAddress.City;
 
+            if (_addressSettings.CountyEnabled && !string.IsNullOrEmpty(billingAddress.County))
+                addressResult.County = billingAddress.County;
+
+            if (_addressSettings.ZipPostalCodeEnabled && !string.IsNullOrEmpty(billingAddress.ZipPostalCode))
+                addressResult.ZipPostalCode = billingAddress.ZipPostalCode;
+
+            StateProvince stateProvince = await _stateProvinceService.GetStateProvinceByAddressAsync(billingAddress);
+            addressResult.StateProvinceName = stateProvince != null ? await _localizationService.GetLocalizedAsync(stateProvince, x => x.Name, lang.Id) : string.Empty;
+            
             if (_addressSettings.CountryEnabled && await _countryService.GetCountryByAddressAsync(billingAddress) is Country country)
                 addressResult.Country = await _localizationService.GetLocalizedAsync(country, x => x.Name, lang.Id);
 
@@ -255,15 +258,18 @@ namespace Nop.Services.Common
                     if (_addressSettings.StreetAddress2Enabled && !string.IsNullOrEmpty(shippingAddress.Address2))
                         addressResult.Address2 = shippingAddress.Address2;
 
-                    if (_addressSettings.CityEnabled || _addressSettings.StateProvinceEnabled ||
-                        _addressSettings.CountyEnabled || _addressSettings.ZipPostalCodeEnabled)
-                    {
-                        addressResult.AddressLine = $"{shippingAddress.City}, " +
-                            $"{(!string.IsNullOrEmpty(shippingAddress.County) ? $"{shippingAddress.County}, " : string.Empty)}" +
-                            $"{(await _stateProvinceService.GetStateProvinceByAddressAsync(shippingAddress) is StateProvince stateProvince ? await _localizationService.GetLocalizedAsync(stateProvince, x => x.Name, lang.Id) : string.Empty)} " +
-                            $"{shippingAddress.ZipPostalCode}";
-                    }
+                    if (_addressSettings.CityEnabled && !string.IsNullOrEmpty(shippingAddress.City))
+                        addressResult.City = shippingAddress.City;
 
+                    if (_addressSettings.CountyEnabled && !string.IsNullOrEmpty(shippingAddress.County))
+                        addressResult.County = shippingAddress.County;
+
+                    if (_addressSettings.ZipPostalCodeEnabled && !string.IsNullOrEmpty(shippingAddress.ZipPostalCode))
+                        addressResult.ZipPostalCode = shippingAddress.ZipPostalCode;
+
+                    StateProvince stateProvince = await _stateProvinceService.GetStateProvinceByAddressAsync(shippingAddress);
+                    addressResult.StateProvinceName = stateProvince != null ? await _localizationService.GetLocalizedAsync(stateProvince, x => x.Name, lang.Id) : string.Empty;
+                    
                     if (_addressSettings.CountryEnabled && await _countryService.GetCountryByAddressAsync(shippingAddress) is Country country)
                     {
                         addressResult.Country = await _localizationService.GetLocalizedAsync(country, x => x.Name, lang.Id);
@@ -283,14 +289,20 @@ namespace Nop.Services.Common
                     if (!string.IsNullOrEmpty(pickupAddress.Address1))
                         addressResult.Address = pickupAddress.Address1;
 
-                    if (_addressSettings.CityEnabled || _addressSettings.StateProvinceEnabled ||
-                        _addressSettings.CountyEnabled || _addressSettings.ZipPostalCodeEnabled)
-                    {
-                        addressResult.AddressLine = $"{pickupAddress.City}, " +
-                            $"{(!string.IsNullOrEmpty(pickupAddress.County) ? $"{pickupAddress.County}, " : string.Empty)}" +
-                            $"{(await _stateProvinceService.GetStateProvinceByAddressAsync(pickupAddress) is StateProvince stateProvince ? await _localizationService.GetLocalizedAsync(stateProvince, x => x.Name, lang.Id) : string.Empty)} " +
-                            $"{pickupAddress.ZipPostalCode}";
-                    }
+                    if (_addressSettings.StreetAddress2Enabled && !string.IsNullOrEmpty(pickupAddress.Address2))
+                        addressResult.Address2 = pickupAddress.Address2;
+
+                    if (_addressSettings.CityEnabled && !string.IsNullOrEmpty(pickupAddress.City))
+                        addressResult.City = pickupAddress.City;
+
+                    if (_addressSettings.CountyEnabled && !string.IsNullOrEmpty(pickupAddress.County))
+                        addressResult.County = pickupAddress.County;
+
+                    if (_addressSettings.ZipPostalCodeEnabled && !string.IsNullOrEmpty(pickupAddress.ZipPostalCode))
+                        addressResult.ZipPostalCode = pickupAddress.ZipPostalCode;
+
+                    StateProvince stateProvince = await _stateProvinceService.GetStateProvinceByAddressAsync(pickupAddress);
+                    addressResult.StateProvinceName = stateProvince != null ? await _localizationService.GetLocalizedAsync(stateProvince, x => x.Name, lang.Id) : string.Empty;
 
                     if (await _countryService.GetCountryByAddressAsync(pickupAddress) is Country country)
                         addressResult.Country = await _localizationService.GetLocalizedAsync(country, x => x.Name, lang.Id);
