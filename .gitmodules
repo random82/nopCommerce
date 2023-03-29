@@ -1,0 +1,3 @@
+[submodule "src/Plugins/Nop.Plugin.Shipping.Hermes"]
+	path = src/Plugins/Nop.Plugin.Shipping.Hermes
+	url = https://github.com/random82/nopCommerce.Hermes
